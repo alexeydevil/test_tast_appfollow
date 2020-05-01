@@ -1,15 +1,15 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
+
 import os
 import sys
+import random
+import pytest
+import aiohttp
+
 current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
 sys.path.append(parent_dir)
-
-import json
-import pytest
-import random
-import aiohttp
 
 import const
 import background_task
@@ -53,16 +53,18 @@ async def test_params():
 @pytest.mark.asyncio
 async def test_result_consist():
     async with aiohttp.ClientSession() as client:
-        async with client.get("http://127.0.0.1:{}/posts{}".format(const.PORT, SUCCESS_PARAMS[2])) as resp:
+        url = "http://127.0.0.1:{}/posts{}".format(const.PORT, SUCCESS_PARAMS[2])
+        async with client.get(url) as resp:
             result = await resp.json()
             max_id = max([int(item["id"]) for item in result])
             assert resp.status == 200
             assert len(result) == 10
             assert max_id >= 10
 
-        async with client.get("http://127.0.0.1:{}/posts{}".format(const.PORT, SUCCESS_PARAMS[0])) as resp:
-                    assert resp.status == 200
-                    assert len(await resp.json()) == 10
+        url = "http://127.0.0.1:{}/posts{}".format(const.PORT, SUCCESS_PARAMS[0])
+        async with client.get(url) as resp:
+            assert resp.status == 200
+            assert len(await resp.json()) == 10
 
 
 @pytest.mark.asyncio
