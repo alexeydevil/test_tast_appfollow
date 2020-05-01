@@ -1,0 +1,38 @@
+version: "3.4"
+services:
+  appfollow:
+    image: appfollow:0.0.1
+    container_name: appfollow
+    ports:
+        - 8000:8000
+    links:
+        - appfollow_mongodb
+    depends_on:
+        - appfollow_mongodb
+    networks:
+      clusternetwork:
+        ipv4_address: 172.16.0.13
+    build:
+      context: .
+  appfollow_mongodb:
+    image: mongo:4.2.6
+    container_name: "appfollow_mongodb"
+    environment:
+      - MONGO_DATA_DIR=/data/db
+      - MONGO_LOG_DIR=/dev/null
+    volumes:
+      - /tmp/data/db:/data/db
+    ports:
+        - 27017:27017
+    networks:
+      clusternetwork:
+        ipv4_address: 172.16.0.14
+volumes:
+  data-volume:
+networks:
+  clusternetwork:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.16.0.0/24
