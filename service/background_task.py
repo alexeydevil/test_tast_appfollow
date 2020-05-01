@@ -32,13 +32,14 @@ async def update_news():
     # для его корректной итерации для новых записей
     current_db = AsyncIOMotorClient(const.MONGO_URL).appfollow
     lost_document = await current_db.news.find_one({}, sort=[('_id', pymongo.DESCENDING)])
+    lost_id = 1
     if lost_document:
         lost_id = lost_document.get("id", 1)
 
     # Вставлять записи будем по одной,
     # т.к. на коллекции стоит ограничивающий индекс
     for pos, item in enumerate(posts):
-        item["id"] = pos + (lost_id or 1)
+        item["id"] = pos + lost_id
         try:
             await current_db.news.insert_one(item)
         except pymongo.errors.DuplicateKeyError:
